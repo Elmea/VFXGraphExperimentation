@@ -127,11 +127,6 @@ public class Simulation : MonoBehaviour
 
         // Offset
         OffsetBuffer(VelocityBuffer, numX, texelOffset);
-        // OffsetBuffer(MarblingSimulator.simulation.v1, numX, texelOffset);
-        // OffsetBuffer(MarblingSimulator.simulation.v2, numX, texelOffset);
-        // OffsetBuffer(MarblingSimulator.simulation.v3, numX, texelOffset);
-        // OffsetBuffer(MarblingSimulator.simulation.p1, numX, texelOffset);
-        // OffsetBuffer(MarblingSimulator.simulation.p2, numX, texelOffset);
 
         // Injection
         Vector2 simPos = WorldToSim(pos, snappedPos, scale);
