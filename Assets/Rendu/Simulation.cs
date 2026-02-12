@@ -121,17 +121,17 @@ public class Simulation : MonoBehaviour
         QuadTransform.position = snappedPos + Offset;
         QuadTransform.localScale = new Vector3(scale, scale, scale);
 
-        Vector2 texelOffset = new Vector2((snappedPos.x - lastSnappedPos.x) / StepSize, (snappedPos.z - lastSnappedPos.z) / StepSize);
+        Vector2 texelOffset = new Vector2(Mathf.RoundToInt((snappedPos.x - lastSnappedPos.x) / StepSize), Mathf.RoundToInt((snappedPos.z - lastSnappedPos.z) / StepSize));
 
         int numX = simulationResolution / 8;
 
         // Offset
         OffsetBuffer(VelocityBuffer, numX, texelOffset);
-        OffsetBuffer(MarblingSimulator.simulation.v1, numX, texelOffset);
-        OffsetBuffer(MarblingSimulator.simulation.v2, numX, texelOffset);
-        OffsetBuffer(MarblingSimulator.simulation.v3, numX, texelOffset);
-        OffsetBuffer(MarblingSimulator.simulation.p1, numX, texelOffset);
-        OffsetBuffer(MarblingSimulator.simulation.p2, numX, texelOffset);
+        // OffsetBuffer(MarblingSimulator.simulation.v1, numX, texelOffset);
+        // OffsetBuffer(MarblingSimulator.simulation.v2, numX, texelOffset);
+        // OffsetBuffer(MarblingSimulator.simulation.v3, numX, texelOffset);
+        // OffsetBuffer(MarblingSimulator.simulation.p1, numX, texelOffset);
+        // OffsetBuffer(MarblingSimulator.simulation.p2, numX, texelOffset);
 
         // Injection
         Vector2 simPos = WorldToSim(pos, snappedPos, scale);

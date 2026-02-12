@@ -161,8 +161,8 @@ MonoBehaviour:
   QuadTransform: {fileID: 1440804600}
   QuadMeshRenderer: {fileID: 1440804602}
   VisualEffect: {fileID: 371550084}
-  VelocityMult: 5
-  FallOff: 100
+  VelocityMult: 2.5
+  FallOff: 200
 --- !u!4 &107415981
 Transform:
   m_ObjectHideFlags: 0
