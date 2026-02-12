@@ -1,10 +1,37 @@
 using StableFluids.Marbling;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.VFX;
 
+[DefaultExecutionOrder(-1)]
 public class Simulation : MonoBehaviour
 {
-    public MarblingFluidSimulator MarblingFluidSimulator;
+    public MarblingFluidSimulator MarblingSimulator;
+
+    private static Simulation sInstance;
+    public static Simulation Instance => sInstance;
+
+    Dictionary<SphereInfluence, (Vector3, Vector3)> influences = new Dictionary<SphereInfluence, (Vector3, Vector3)>();
+
+    public void Subscribe(SphereInfluence influencer)
+    {
+        Debug.Assert(!influences.ContainsKey(influencer));
+        influences.Add(influencer, (influencer.transform.position, influencer.transform.position));
+    }
+
+    public void Unsubscribe(SphereInfluence influencer)
+    {
+        Debug.Assert(influences.ContainsKey(influencer));
+        influences.Remove(influencer);
+    }
+
+    public void UpdatePosition(SphereInfluence influencer, Vector3 position)
+    {
+        Debug.Assert(influences.ContainsKey(influencer));
+        var values = influences[influencer];
+        values = (position, values.Item1);
+        influences[influencer] = values;
+    }
 
     public Transform PlayerTransform;
     public CharacterController CharacterController;
@@ -31,6 +58,11 @@ public class Simulation : MonoBehaviour
 
     public float VelocityMult = 5.0f;
     public float FallOff = 100.0f;
+
+    private void Awake()
+    {
+        sInstance = this;
+    }
 
     private void OnEnable()
     {
@@ -95,11 +127,11 @@ public class Simulation : MonoBehaviour
 
         // Offset
         OffsetBuffer(VelocityBuffer, numX, texelOffset);
-        OffsetBuffer(MarblingFluidSimulator.simulation.v1, numX, texelOffset);
-        OffsetBuffer(MarblingFluidSimulator.simulation.v2, numX, texelOffset);
-        OffsetBuffer(MarblingFluidSimulator.simulation.v3, numX, texelOffset);
-        OffsetBuffer(MarblingFluidSimulator.simulation.p1, numX, texelOffset);
-        OffsetBuffer(MarblingFluidSimulator.simulation.p2, numX, texelOffset);
+        OffsetBuffer(MarblingSimulator.simulation.v1, numX, texelOffset);
+        OffsetBuffer(MarblingSimulator.simulation.v2, numX, texelOffset);
+        OffsetBuffer(MarblingSimulator.simulation.v3, numX, texelOffset);
+        OffsetBuffer(MarblingSimulator.simulation.p1, numX, texelOffset);
+        OffsetBuffer(MarblingSimulator.simulation.p2, numX, texelOffset);
 
         // Injection
         Vector2 simPos = WorldToSim(pos, snappedPos, scale);
@@ -116,7 +148,25 @@ public class Simulation : MonoBehaviour
             Graphics.Blit(null, ForceBuffer, injectionMaterial, 1);
         }
 
-        MarblingFluidSimulator.UpdateSimulation();
+        foreach(var kvp in influences)
+        {
+            var influencerPos = kvp.Value.Item1;
+            var influencerPrevPos = kvp.Value.Item2;
+
+            var influencerSimPos = WorldToSim(influencerPos, snappedPos, scale);
+            var influencerSimVel = VelocityWorldToSim(influencerPos, influencerPrevPos, snappedPos, scale);
+
+            if (influencerSimVel.sqrMagnitude > 0.001f)
+            {
+                injectionMaterial.SetVector("_Origin", influencerSimPos);
+                injectionMaterial.SetFloat("_Falloff", FallOff);
+                injectionMaterial.SetVector("_Force", influencerSimVel * VelocityMult);
+
+                Graphics.Blit(null, ForceBuffer, injectionMaterial, 1);
+            }
+        }
+
+        MarblingSimulator.UpdateSimulation();
 
         QuadMeshRenderer.sharedMaterial.SetTexture("_BaseMap", VelocityBuffer);
 
