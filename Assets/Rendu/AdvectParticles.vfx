@@ -87,9 +87,9 @@ MonoBehaviour:
     position:
       serializedVersion: 2
       x: 681
-      y: -493
-      width: 478
-      height: 1826
+      y: -492
+      width: 477
+      height: 2104
     contents:
     - model: {fileID: 114023846229194376}
       id: 0
@@ -136,9 +136,9 @@ MonoBehaviour:
   categories: []
   uiBounds:
     serializedVersion: 2
-    x: -1382
-    y: -493
-    width: 2541
+    x: -1381
+    y: -492
+    width: 2539
     height: 2239
 --- !u!114 &114350483966674976
 MonoBehaviour:
@@ -2388,13 +2388,14 @@ MonoBehaviour:
   - {fileID: 8926484042661614620}
   - {fileID: 8926484042661614730}
   - {fileID: 8926484042661614623}
-  m_UIPosition: {x: 706, y: 981}
+  m_UIPosition: {x: 709, y: 980}
   m_UICollapsed: 0
   m_UISuperCollapsed: 0
   m_InputSlots:
   - {fileID: 8926484042661614615}
   - {fileID: 8926484042661614616}
   - {fileID: 8926484042661614617}
+  - {fileID: 8926484042661614790}
   m_OutputSlots: []
   m_Label: Render Quad
   m_Data: {fileID: 114428730288789306}
@@ -2459,7 +2460,7 @@ MonoBehaviour:
   doubleSided: 0
   receiveShadows: 1
   primitiveType: 1
-  normalBending: 0
+  normalBending: 1
 --- !u!114 &8926484042661614615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6957,3 +6958,37 @@ MonoBehaviour:
   m_Direction: 1
   m_LinkedSlots:
   - {fileID: 8926484042661614588}
+--- !u!114 &8926484042661614790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f780aa281814f9842a7c076d436932e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UIIgnoredErrors: []
+  m_Parent: {fileID: 0}
+  m_Children: []
+  m_UIPosition: {x: 0, y: 0}
+  m_UICollapsed: 1
+  m_UISuperCollapsed: 0
+  m_MasterSlot: {fileID: 8926484042661614790}
+  m_MasterData:
+    m_Owner: {fileID: 8926484042661614614}
+    m_Value:
+      m_Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      m_SerializableObject: 1
+    m_Space: -1
+  m_Property:
+    name: normalBendingFactor
+    m_serializedType:
+      m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+  m_Direction: 0
+  m_LinkedSlots: []
