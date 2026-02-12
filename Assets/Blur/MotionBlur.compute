@@ -1,0 +1,55 @@
+#pragma kernel MotionBlur
+
+int TextureWidth;
+int TextureHeight;
+
+Texture2D<float4> CameraTexture;
+Texture2D<float4> InputBlurred;
+RWTexture2D<float4> Result;
+
+groupshared float4 lds[64];
+
+float MotionBlurIntensity;
+
+[numthreads(8, 8, 1)]
+void MotionBlur(uint3 id : SV_GroupThreadID, uint3 groupId : SV_GroupID)
+{
+    uint ldsId = id.x + id.y * 8;
+    
+    int2 outPixelCoord = groupId.xy * 4;
+    outPixelCoord += int2(id.x - 2, id.y - 2);
+    outPixelCoord.x = clamp(outPixelCoord.x, 0, TextureWidth - 1);
+    outPixelCoord.y = clamp(outPixelCoord.y, 0, TextureHeight - 1);
+    
+    float4 input = CameraTexture.Load(int3(outPixelCoord, 0));
+    float4 inputBlurred = InputBlurred.Load(int3(outPixelCoord, 0));
+    input = lerp(input, inputBlurred, 1.0 - saturate(MotionBlurIntensity));
+    
+    lds[ldsId] = input;
+    
+    GroupMemoryBarrierWithGroupSync();
+    
+    if (id.x > 1 && id.x < 6U)
+    {
+        float4 outColor = 0.0;
+        for (uint i = id.x - 2U; i < id.x + 3U; i++)
+        {
+            outColor += lds[i + id.y * 8U];
+        }
+        outColor /= 5.0;
+        lds[ldsId] = outColor;
+    }
+    
+    GroupMemoryBarrierWithGroupSync();
+    
+    if (id.x > 1U && id.x < 6U && id.y > 1U && id.y < 6U)
+    {
+        float4 outColor = 0.0;
+        for (uint i = id.y - 2U; i < id.y + 3U; i++)
+        {
+            outColor += lds[id.x + i * 8U];
+        }
+        outColor /= 5.0;
+        Result[outPixelCoord] = outColor;
+    }
+}
