@@ -1,5 +1,6 @@
 using StableFluids.Marbling;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class Simulation : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class Simulation : MonoBehaviour
     public Transform QuadTransform;
     public MeshRenderer QuadMeshRenderer;
 
+    public VisualEffect VisualEffect;
+
     private Vector3 lastPos;
     private Vector3 lastSnappedPos;
 
@@ -37,6 +40,9 @@ public class Simulation : MonoBehaviour
 
         tempCopy = new RenderTexture(VelocityBuffer);
         tempCopy.enableRandomWrite = true;
+
+        VisualEffect.SetFloat("SimSize", StepSize * VelocityBuffer.width);
+        VisualEffect.SetTexture("VelocityBuffer", VelocityBuffer);
     }
 
     private void OnDisable()

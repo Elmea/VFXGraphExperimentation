@@ -160,6 +160,7 @@ MonoBehaviour:
   OffsetCompute: {fileID: 7200000, guid: 1e47017e3b31bb549b31b44359b0d1e6, type: 3}
   QuadTransform: {fileID: 1440804600}
   QuadMeshRenderer: {fileID: 1440804602}
+  VisualEffect: {fileID: 371550084}
   VelocityMult: 5
   FallOff: 100
 --- !u!4 &107415981
@@ -205,6 +206,8 @@ GameObject:
   - component: {fileID: 371550085}
   - component: {fileID: 371550084}
   - component: {fileID: 371550083}
+  - component: {fileID: 371550087}
+  - component: {fileID: 371550086}
   m_Layer: 0
   m_Name: AdvectParticles
   m_TagString: Untagged
@@ -272,11 +275,17 @@ VisualEffect:
   m_ResourceVersion: 1
   m_PropertySheet:
     m_Float:
-      m_Array: []
+      m_Array:
+      - m_Value: 20
+        m_Name: SimSize
+        m_Overridden: 1
     m_Vector2f:
       m_Array: []
     m_Vector3f:
-      m_Array: []
+      m_Array:
+      - m_Value: {x: 0, y: 0, z: 0}
+        m_Name: SimCenter
+        m_Overridden: 1
     m_Vector4f:
       m_Array: []
     m_Uint:
@@ -290,7 +299,10 @@ VisualEffect:
     m_Gradient:
       m_Array: []
     m_NamedObject:
-      m_Array: []
+      m_Array:
+      - m_Value: {fileID: 8400000, guid: 4f68b35a64e6cd941a9f77e0cc5811f3, type: 2}
+        m_Name: VelocityBuffer
+        m_Overridden: 1
     m_Bool:
       m_Array: []
 --- !u!4 &371550085
@@ -308,6 +320,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &371550086
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371550082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07c3070554d0a8944a95ff8f018c2c9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Space: 1
+  m_Property:
+    m_Name: SimCenter
+  Target: {fileID: 1440804600}
+--- !u!114 &371550087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371550082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdafc37f32b176349b1684c4455b98e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ExecuteInEditor: 1
+  m_Bindings:
+  - {fileID: 371550086}
+  m_VisualEffect: {fileID: 371550084}
 --- !u!1 &542508511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1009,7 +1053,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440804599}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
