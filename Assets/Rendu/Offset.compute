@@ -1,0 +1,13 @@
+#pragma kernel Offset
+
+Texture2D<float2> Previous;
+RWTexture2D<float2> Result;
+
+float2 offset;
+
+[numthreads(8, 8, 1)]
+void Offset(uint3 id : SV_DispatchThreadID)
+{
+    int2 o = (int2) offset;
+    Result[id.xy] = Previous[id.xy + o];
+}

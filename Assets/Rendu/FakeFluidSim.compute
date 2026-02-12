@@ -5,7 +5,6 @@ Texture2D<float2> Previous;
 RWTexture2D<float2> Result;
 
 int resolution;
-
 float2 playerPos;
 float2 offset;
 

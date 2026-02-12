@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 107415981}
   - component: {fileID: 107415980}
+  - component: {fileID: 107415982}
   m_Layer: 0
   m_Name: Simulation
   m_TagString: Untagged
@@ -148,13 +149,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6bf1e5eadbd26d48a5c642919195132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MarblingFluidSimulator: {fileID: 107415982}
   PlayerTransform: {fileID: 1762682262}
-  StepSize: 0.1
-  SimulationResolution: 128
-  Offset: {x: 0, y: 0.1, z: 0}
+  CharacterController: {fileID: 1762682265}
+  StepSize: 0.15
+  Offset: {x: 0, y: 0.5, z: 0}
+  ForceBuffer: {fileID: 8400000, guid: 118819f956361894298fd74f80c2873b, type: 2}
+  VelocityBuffer: {fileID: 8400000, guid: 4f68b35a64e6cd941a9f77e0cc5811f3, type: 2}
+  InjectionShader: {fileID: 4800000, guid: b9f05abc1b30a6045a9a8cede494d755, type: 3}
+  OffsetCompute: {fileID: 7200000, guid: 1e47017e3b31bb549b31b44359b0d1e6, type: 3}
   QuadTransform: {fileID: 1440804600}
   QuadMeshRenderer: {fileID: 1440804602}
-  SimulationComputeShader: {fileID: 7200000, guid: 8fa29b3e69403f84aa52e322ca2efd64, type: 3}
+  VelocityMult: 5
+  FallOff: 100
 --- !u!4 &107415981
 Transform:
   m_ObjectHideFlags: 0
@@ -171,6 +178,22 @@ Transform:
   - {fileID: 1440804600}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &107415982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 107415979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e08d0e68a422c6d43b1aa8d46daeba29, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <Viscosity>k__BackingField: 0.000001
+  _velocityField: {fileID: 8400000, guid: 4f68b35a64e6cd941a9f77e0cc5811f3, type: 2}
+  _forceField: {fileID: 8400000, guid: 118819f956361894298fd74f80c2873b, type: 2}
+  _kernelShader: {fileID: 4800000, guid: 216d204a716d8024bb999412c15e7e93, type: 3}
 --- !u!1 &542508511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1004,6 +1027,11 @@ MonoBehaviour:
 --- !u!4 &1762682262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3893294197879345259, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
+  m_PrefabInstance: {fileID: 1762682258}
+  m_PrefabAsset: {fileID: 0}
+--- !u!143 &1762682265 stripped
+CharacterController:
+  m_CorrespondingSourceObject: {fileID: 4416926081852918491, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
   m_PrefabInstance: {fileID: 1762682258}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1764214107

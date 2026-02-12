@@ -1,49 +1,48 @@
+using StableFluids.Marbling;
 using UnityEngine;
 
 public class Simulation : MonoBehaviour
 {
-    public enum Resolution
-    {
-        _32  = 32,
-        _64  = 64,
-        _128 = 128,
-    }
+    public MarblingFluidSimulator MarblingFluidSimulator;
 
     public Transform PlayerTransform;
+    public CharacterController CharacterController;
     public float StepSize = 0.5f;
-    public Resolution SimulationResolution = Resolution._32;
     public Vector3 Offset = new Vector3(0.0f, 0.1f, 0.0f);
+
+    public RenderTexture ForceBuffer;
+    public RenderTexture VelocityBuffer;
+    public Shader InjectionShader;
+
+    private RenderTexture tempCopy;
+
+    private Material injectionMaterial;
+
+    public ComputeShader OffsetCompute;
 
     public Transform QuadTransform;
     public MeshRenderer QuadMeshRenderer;
 
-    public ComputeShader SimulationComputeShader;
-
     private Vector3 lastPos;
+    private Vector3 lastSnappedPos;
 
-    private RenderTexture buffer;
-    private RenderTexture buffer2;
+    public float VelocityMult = 5.0f;
+    public float FallOff = 100.0f;
 
     private void OnEnable()
     {
-        lastPos = SnapPosition(PlayerTransform.position);
-        buffer = CreateBuffer("buffer");
-        buffer2 = CreateBuffer("buffer2");
-    }
+        lastSnappedPos = SnapPosition(PlayerTransform.position);
+        injectionMaterial = new Material(InjectionShader);
+        injectionMaterial.SetFloat("_Aspect", 1f);
 
-    RenderTexture CreateBuffer(string name)
-    {
-        RenderTexture tempBuffer = new RenderTexture((int)SimulationResolution, (int)SimulationResolution, 0, RenderTextureFormat.RGHalf, RenderTextureReadWrite.Linear);
-        tempBuffer.enableRandomWrite = true;
-        tempBuffer.name = name;
-        tempBuffer.Create();
-        return tempBuffer;
+        tempCopy = new RenderTexture(VelocityBuffer);
+        tempCopy.enableRandomWrite = true;
     }
 
     private void OnDisable()
     {
-        buffer.Release();
-        buffer2.Release();
+        injectionMaterial = null;
+        tempCopy.Release();
     }
 
     Vector3 SnapPosition(Vector3 pos)
@@ -57,35 +56,65 @@ public class Simulation : MonoBehaviour
         return new Vector2(pos.x, pos.z);
     }
 
+    Vector2 VelocityWorldToSim(Vector3 pos, Vector3 prevPos, Vector3 simCenter, float simSize)
+    {
+        pos = WorldToSim(pos, simCenter, simSize);
+        prevPos = WorldToSim(prevPos, simCenter, simSize);
+        return (pos - prevPos) / Time.deltaTime;
+    }
+
+    private void OffsetBuffer(RenderTexture inputBuffer, int numX, Vector2 texelOffset)
+    {
+        OffsetCompute.SetFloats("offset", texelOffset.x, texelOffset.y);
+        OffsetCompute.SetTexture(0, "Previous", inputBuffer);
+        OffsetCompute.SetTexture(0, "Result", tempCopy);
+        OffsetCompute.Dispatch(0, numX, numX, 1);
+
+        Graphics.Blit(tempCopy, inputBuffer);
+    }
+
     private void LateUpdate()
     {
-        float scale = (int)SimulationResolution * StepSize;
+        int simulationResolution = ForceBuffer.width;
+
+        float scale = simulationResolution * StepSize;
         Vector3 pos = PlayerTransform.position;
         Vector3 snappedPos = SnapPosition(pos);
         QuadTransform.position = snappedPos + Offset;
         QuadTransform.localScale = new Vector3(scale, scale, scale);
 
+        Vector2 texelOffset = new Vector2((snappedPos.x - lastSnappedPos.x) / StepSize, (snappedPos.z - lastSnappedPos.z) / StepSize);
 
-        Vector2 texelOffset = new Vector2((snappedPos.x - lastPos.x) / StepSize, (snappedPos.z - lastPos.z) / StepSize);
+        int numX = simulationResolution / 8;
 
-        int numX = (int)SimulationResolution / 8;
+        // Offset
+        OffsetBuffer(VelocityBuffer, numX, texelOffset);
+        OffsetBuffer(MarblingFluidSimulator.simulation.v1, numX, texelOffset);
+        OffsetBuffer(MarblingFluidSimulator.simulation.v2, numX, texelOffset);
+        OffsetBuffer(MarblingFluidSimulator.simulation.v3, numX, texelOffset);
+        OffsetBuffer(MarblingFluidSimulator.simulation.p1, numX, texelOffset);
+        OffsetBuffer(MarblingFluidSimulator.simulation.p2, numX, texelOffset);
 
-        SimulationComputeShader.SetInt("resolution", (int)SimulationResolution);
+        // Injection
         Vector2 simPos = WorldToSim(pos, snappedPos, scale);
+        Vector2 simVel = VelocityWorldToSim(pos, lastPos, snappedPos, scale);
 
-        SimulationComputeShader.SetFloats("playerPosition", simPos.x, simPos.y);
-        SimulationComputeShader.SetTexture(0, "Previous", buffer);
-        SimulationComputeShader.SetTexture(0, "Result", buffer2);
-        SimulationComputeShader.Dispatch(0, numX, numX, 1);
+        Graphics.Blit(Texture2D.blackTexture, ForceBuffer);
 
-        SimulationComputeShader.SetFloats("offset", texelOffset.x, texelOffset.y);
-        SimulationComputeShader.SetTexture(1, "Previous", buffer2);
-        SimulationComputeShader.SetTexture(1, "Result", buffer);
+        if(simVel.sqrMagnitude > 0.001f)
+        {
+            injectionMaterial.SetVector("_Origin", simPos);
+            injectionMaterial.SetFloat("_Falloff", FallOff);
+            injectionMaterial.SetVector("_Force", simVel * VelocityMult);
 
-        SimulationComputeShader.Dispatch(1, numX, numX, 1);
+            Graphics.Blit(null, ForceBuffer, injectionMaterial, 1);
+        }
 
-        QuadMeshRenderer.sharedMaterial.SetTexture("_BaseMap", buffer );
+        MarblingFluidSimulator.UpdateSimulation();
 
-        lastPos = snappedPos;
+        QuadMeshRenderer.sharedMaterial.SetTexture("_BaseMap", VelocityBuffer);
+
+        lastPos = pos;
+        lastSnappedPos = snappedPos;
     }
 }
